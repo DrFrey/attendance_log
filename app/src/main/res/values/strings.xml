@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Журнал посещений</string>
+    <string name="app_name">Журнал посещаемости</string>
     <string name="edit">Редактировать</string>
     <string name="save">Сохранить</string>
     <string name="send">Отправить</string>
