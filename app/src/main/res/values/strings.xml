@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Журнал посещений</string>
+    <string name="edit">Редактировать</string>
+    <string name="save">Сохранить</string>
+    <string name="send">Отправить</string>
+    <string name="students_list">Список учеников</string>
+    <string name="back">Назад</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="delete_student">Удалить ученика?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="last_name">Фамилия</string>
+    <string name="first_name">Имя</string>
+    <string name="error_mandatory_field">Обязательное поле</string>
+    <string name="cancel">Отменить</string>
+    <string name="message_template">Сегодня, %1$s, отсутствуют по болезни %2$d%3$s, по другим причинам %4$d%5$s.</string>
+</resources>
