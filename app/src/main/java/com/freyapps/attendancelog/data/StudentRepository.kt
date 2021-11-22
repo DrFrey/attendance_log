@@ -1,6 +1,4 @@
-package com.example.attendancelog.data
-
-import com.example.attendancelog.data.StudentDao
+package com.freyapps.attendancelog.data
 
 class StudentRepository(
     private val studentDao: StudentDao

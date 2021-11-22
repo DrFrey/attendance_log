@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/listFragment"
-        android:name="com.example.attendancelog.ui.ListFragment"
+        android:name="com.freyapps.attendancelog.ui.ListFragment"
         android:label="ListFragment"
         tools:layout="@layout/fragment_list">
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/editListFragment"
-        android:name="com.example.attendancelog.ui.EditListFragment"
+        android:name="com.freyapps.attendancelog.ui.EditListFragment"
         android:label="EditListFragment"
         tools:layout="@layout/fragment_edit_list">
         <action

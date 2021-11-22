@@ -1,4 +1,4 @@
-package com.example.attendancelog.ui
+package com.freyapps.attendancelog.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.attendancelog.AttendanceLogApp
-import com.example.attendancelog.R
-import com.example.attendancelog.data.Student
-import com.example.attendancelog.databinding.FragmentListBinding
+import com.freyapps.attendancelog.AttendanceLogApp
+import com.freyapps.attendancelog.R
+import com.freyapps.attendancelog.data.Student
+import com.freyapps.attendancelog.databinding.FragmentListBinding
 
 class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
 

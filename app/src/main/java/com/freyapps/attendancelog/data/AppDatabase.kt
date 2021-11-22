@@ -1,4 +1,4 @@
-package com.example.attendancelog.data
+package com.freyapps.attendancelog.data
 
 import android.content.Context
 import androidx.room.Database

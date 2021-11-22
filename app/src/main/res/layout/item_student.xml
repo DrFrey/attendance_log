@@ -6,7 +6,7 @@
     <data>
         <variable
             name="student"
-            type="com.example.attendancelog.data.Student" />
+            type="com.freyapps.attendancelog.data.Student" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

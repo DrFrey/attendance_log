@@ -1,13 +1,12 @@
-package com.example.attendancelog.ui
+package com.freyapps.attendancelog.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.attendancelog.R
-import com.example.attendancelog.data.Student
-import com.example.attendancelog.databinding.ItemEditBinding
+import com.freyapps.attendancelog.data.Student
+import com.freyapps.attendancelog.databinding.ItemEditBinding
 
 class EditAdapter(val listener: OnDeleteClickListener) :
     ListAdapter<Student, EditAdapter.ViewHolder>(DIFF_CALLBACK) {

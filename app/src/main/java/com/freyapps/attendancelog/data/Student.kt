@@ -1,4 +1,4 @@
-package com.example.attendancelog.data
+package com.freyapps.attendancelog.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

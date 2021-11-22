@@ -1,4 +1,4 @@
-package com.example.attendancelog.ui
+package com.freyapps.attendancelog.ui
 
 import android.os.Bundle
 import android.view.*
@@ -6,11 +6,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
-import com.example.attendancelog.AttendanceLogApp
-import com.example.attendancelog.R
-import com.example.attendancelog.data.Student
-import com.example.attendancelog.databinding.AddStudentBottomSheetDialogBinding
-import com.example.attendancelog.databinding.FragmentEditListBinding
+import com.freyapps.attendancelog.AttendanceLogApp
+import com.freyapps.attendancelog.R
+import com.freyapps.attendancelog.data.Student
+import com.freyapps.attendancelog.databinding.AddStudentBottomSheetDialogBinding
+import com.freyapps.attendancelog.databinding.FragmentEditListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {

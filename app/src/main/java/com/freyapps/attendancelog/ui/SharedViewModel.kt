@@ -1,9 +1,9 @@
-package com.example.attendancelog.ui
+package com.freyapps.attendancelog.ui
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.*
-import com.example.attendancelog.data.Student
-import com.example.attendancelog.data.StudentRepository
+import com.freyapps.attendancelog.data.Student
+import com.freyapps.attendancelog.data.StudentRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

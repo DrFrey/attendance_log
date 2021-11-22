@@ -1,8 +1,7 @@
-package com.example.attendancelog.data
+package com.freyapps.attendancelog.data
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.attendancelog.data.Student
 
 @Dao
 interface StudentDao {

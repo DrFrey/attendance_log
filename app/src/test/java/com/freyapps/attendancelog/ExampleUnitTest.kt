@@ -1,4 +1,4 @@
-package com.example.attendancelog
+package com.freyapps.attendancelog
 
 import org.junit.Test
 

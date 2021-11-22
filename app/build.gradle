@@ -5,17 +5,32 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('C:\\Dev\\projects\\keystore.jks')
+            storePassword 'Uche1Chuxa2'
+            keyPassword 'Uche1Chuxa2'
+            keyAlias 'key1_al'
+        }
+        release {
+            storeFile file('C:\\Dev\\projects\\keystore.jks')
+            storePassword 'Uche1Chuxa2'
+            keyAlias 'key1_al'
+            keyPassword 'Uche1Chuxa2'
+        }
+    }
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.example.attendancelog"
+        applicationId "com.freyapps.attendancelog"
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
     }
 
     buildTypes {
