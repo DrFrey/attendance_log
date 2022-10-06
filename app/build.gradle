@@ -8,15 +8,15 @@ android {
     signingConfigs {
         debug {
             storeFile file('C:\\Dev\\projects\\keystore.jks')
-            storePassword 'Uche1Chuxa2'
-            keyPassword 'Uche1Chuxa2'
+            storePassword ''
+            keyPassword ''
             keyAlias 'key1_al'
         }
         release {
             storeFile file('C:\\Dev\\projects\\keystore.jks')
-            storePassword 'Uche1Chuxa2'
+            storePassword ''
             keyAlias 'key1_al'
-            keyPassword 'Uche1Chuxa2'
+            keyPassword ''
         }
     }
     compileSdkVersion 31
