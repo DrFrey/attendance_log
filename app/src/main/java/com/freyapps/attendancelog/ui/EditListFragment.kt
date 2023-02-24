@@ -53,9 +53,9 @@ class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
             studentsList.adapter = adapter
         }
 
-        viewModel.allStudents.observe(viewLifecycleOwner, {
+        viewModel.allStudents.observe(viewLifecycleOwner) {
             adapter.submitList(it)
-        })
+        }
 
         return binding.root
     }

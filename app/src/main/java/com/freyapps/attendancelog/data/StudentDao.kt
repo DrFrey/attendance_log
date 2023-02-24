@@ -28,4 +28,7 @@ interface StudentDao {
 
     @Query("SELECT * FROM students WHERE status = 3 ORDER BY last_name ASC")
     fun getAllAbsent(): LiveData<List<Student>>
+
+    @Query("SELECT * FROM students WHERE group_id = :groupId ORDER BY last_name ASC")
+    fun getAllStudentsByGroup(groupId: Int): LiveData<List<Student>>
 }

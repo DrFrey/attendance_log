@@ -77,15 +77,15 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.allStudents.observe(viewLifecycleOwner, {
+        viewModel.allStudents.observe(viewLifecycleOwner) {
             adapter.submitList(it)
-        })
-        viewModel.allSick.observe(viewLifecycleOwner, {
+        }
+        viewModel.allSick.observe(viewLifecycleOwner) {
             sickStudents = it
-        })
-        viewModel.allAbsent.observe(viewLifecycleOwner, {
+        }
+        viewModel.allAbsent.observe(viewLifecycleOwner) {
             absentStudents = it
-        })
+        }
     }
 
     override fun onItemClick(item: Student, newStatus: Int) {
@@ -93,7 +93,8 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
             id = item.id,
             firstName = item.firstName,
             lastName = item.lastName,
-            status = newStatus
+            status = newStatus,
+            groupId = item.groupId
         )
         viewModel.updateStudent(newStudent)
         adapter.notifyItemChanged(adapter.currentList.indexOf(item))

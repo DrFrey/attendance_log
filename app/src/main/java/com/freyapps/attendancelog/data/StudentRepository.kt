@@ -8,6 +8,8 @@ class StudentRepository(
     fun getAllSick() = studentDao.getAllSick()
     fun getAllAbsent() = studentDao.getAllAbsent()
 
+    fun getAllStudentsByGroup(groupId: Int) = studentDao.getAllStudentsByGroup(groupId)
+
     suspend fun updateStudent(student: Student) = studentDao.updateStudent(student)
 
     suspend fun deleteStudent(student: Student) = studentDao.deleteStudent(student)
