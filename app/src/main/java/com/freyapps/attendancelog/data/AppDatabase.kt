@@ -24,6 +24,8 @@ abstract class AppDatabase : RoomDatabase() {
         private const val INSERT_NAMES =
             "INSERT INTO students (id, first_name, last_name, status, group_id) VALUES (1, 'Емельян', 'Кулебякин', 1, 1), " +
                     "(2, 'Авдотья', 'Пушная', 2, 1), (3, 'Семен', 'Голубчиков', 3, 1), (4, 'Васисуалий', 'Пупкевич', 3, 1)"
+        private const val INSERT_GROUP =
+            "INSERT INTO groups (id, name) VALUES (1, 'Group 1')"
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -34,6 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
                 ).addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         db.execSQL(INSERT_NAMES)
+                        db.execSQL(INSERT_GROUP)
                     }
                 })
                     .build()

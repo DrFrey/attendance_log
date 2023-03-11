@@ -12,16 +12,43 @@
         android:layout_height="match_parent"
         android:padding="10dp">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
         <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
+            app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/studentsList"
+            android:textSize="18sp"
+            tools:text="1 сентября 2021 г." />
+
+        <Spinner
+            android:id="@+id/groupSpinner"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:textSize="28sp"
-            tools:text="1 сентября 2021 г." />
+            app:layout_constraintBottom_toTopOf="@id/studentsList" />
+        <Button
+            android:id="@+id/btnGroupEdit"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_outline_edit_24"
+            app:layout_constraintStart_toEndOf="@id/groupSpinner"
+            app:layout_constraintTop_toTopOf="@id/groupSpinner"
+            app:layout_constraintBottom_toBottomOf="@id/groupSpinner" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/studentsList"
@@ -35,18 +62,18 @@
             app:layout_constraintTop_toBottomOf="@id/tvDate"
             tools:listitem="@layout/item_student" />
 
-            <Button
-                android:id="@+id/btnSend"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_shape"
-                android:text="@string/send"
-                android:textAllCaps="true"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                style="@style/textItem"
-                android:textStyle="normal"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+        <Button
+            android:id="@+id/btnSend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_shape"
+            android:text="@string/send"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            style="@style/textItem"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

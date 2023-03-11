@@ -1,9 +1,7 @@
 package com.freyapps.attendancelog.data
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Update
+import androidx.lifecycle.LiveData
+import androidx.room.*
 
 @Dao
 interface GroupDao {
@@ -15,4 +13,7 @@ interface GroupDao {
 
     @Delete
     suspend fun deleteGroup(group: Group)
+
+    @Query("SELECT * FROM groups ORDER BY name")
+    fun getAllGroups(): LiveData<List<Group>>
 }

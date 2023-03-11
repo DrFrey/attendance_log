@@ -3,7 +3,7 @@ package com.freyapps.attendancelog.ui
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.freyapps.attendancelog.AttendanceLogApp
@@ -15,13 +15,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
 
-    private val viewModel: SharedViewModel by viewModels {
+    private val viewModel: SharedViewModel by activityViewModels {
         SharedViewModel.SharedViewModelFactory(
-            AttendanceLogApp.repository
+            AttendanceLogApp.studentRepository,
+            AttendanceLogApp.groupRepository
         )
     }
 
-    private lateinit var adapter: EditAdapter
+    private lateinit var editListAdapter: EditAdapter
+    private lateinit var binding: FragmentEditListBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +39,15 @@ class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentEditListBinding.inflate(inflater, container, false)
+        binding = FragmentEditListBinding.inflate(inflater, container, false)
 
+        setUpViews()
+        subscribeToViewModel()
+
+        return binding.root
+    }
+
+    private fun setUpViews() {
         with(binding) {
             fabBack.setOnClickListener {
                 findNavController().navigate(R.id.action_editListFragment_to_listFragment)
@@ -49,17 +58,16 @@ class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
             }
 
             lifecycleOwner = this@EditListFragment
-            adapter = EditAdapter(this@EditListFragment)
-            studentsList.adapter = adapter
+            editListAdapter = EditAdapter(this@EditListFragment)
+            studentsList.adapter = editListAdapter
         }
-
-        viewModel.allStudents.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
-        }
-
-        return binding.root
     }
 
+    private fun subscribeToViewModel() {
+        viewModel.studentsInCurrentGroup.observe(viewLifecycleOwner) {
+            editListAdapter.submitList(it)
+        }
+    }
     private fun onAddClick() {
         val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
         val dialogBinding =
@@ -79,11 +87,12 @@ class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
                         viewModel.addStudent(
                             Student(
                                 firstName = etFirstName.text.toString(),
-                                lastName = etLastName.text.toString()
+                                lastName = etLastName.text.toString(),
+                                groupId = viewModel.currentGroup
                             )
                         )
+                        editListAdapter.notifyDataSetChanged()
                         bottomSheetDialog.dismiss()
-                        adapter.notifyDataSetChanged()
                     }
                 }
             }

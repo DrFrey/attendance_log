@@ -2,28 +2,35 @@ package com.freyapps.attendancelog.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.freyapps.attendancelog.AttendanceLogApp
 import com.freyapps.attendancelog.R
+import com.freyapps.attendancelog.data.Group
 import com.freyapps.attendancelog.data.Student
 import com.freyapps.attendancelog.databinding.FragmentListBinding
 
-class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
+class ListFragment : Fragment(), StudentAdapter.OnItemClickListener, AdapterView.OnItemSelectedListener {
 
-    private val viewModel: SharedViewModel by viewModels {
+    private val viewModel: SharedViewModel by activityViewModels {
         SharedViewModel.SharedViewModelFactory(
-            AttendanceLogApp.repository
+            AttendanceLogApp.studentRepository,
+            AttendanceLogApp.groupRepository
         )
     }
     private lateinit var binding: FragmentListBinding
-    private lateinit var adapter: StudentAdapter
+    private lateinit var studentAdapter: StudentAdapter
+    private lateinit var groupsAdapter: ArrayAdapter<Group>
 
     private var sickStudents: List<Student> = listOf()
     private var absentStudents: List<Student> = listOf()
+    private var groups: List<Group> = listOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,19 +39,27 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
     ): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
 
-        binding.lifecycleOwner = this
-        adapter = StudentAdapter(this)
-
-        subscribeToViewModel()
         setUpViews()
+        subscribeToViewModel()
 
         return binding.root
     }
 
     private fun setUpViews() {
         with(binding) {
-            studentsList.adapter = adapter
+            lifecycleOwner = this@ListFragment
+            studentAdapter = StudentAdapter(this@ListFragment)
+            studentsList.adapter = studentAdapter
+
             tvDate.text = viewModel.today
+
+            groupsAdapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_item
+            )
+            groupsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            groupSpinner.adapter = groupsAdapter
+            groupSpinner.onItemSelectedListener = this@ListFragment
 
             btnSend.setOnClickListener {
                 val sick = sickStudents.joinToString(prefix = " (", postfix = ")")  {
@@ -72,19 +87,31 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
                 val shareIntent = Intent.createChooser(sendIntent, null)
                 startActivity(shareIntent)
             }
-        }
 
+            btnGroupEdit.setOnClickListener {
+                val editGroupsDialog = EditGroupsDialog(viewModel)
+                editGroupsDialog.show(childFragmentManager, "editGroups")
+            }
+        }
     }
 
     private fun subscribeToViewModel() {
-        viewModel.allStudents.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.studentsInCurrentGroup.observe(viewLifecycleOwner) {
+            studentAdapter.submitList(it)
         }
         viewModel.allSick.observe(viewLifecycleOwner) {
             sickStudents = it
         }
         viewModel.allAbsent.observe(viewLifecycleOwner) {
             absentStudents = it
+        }
+        viewModel.allGroups.observe(viewLifecycleOwner) {
+            groups = it
+            groupsAdapter.clear()
+            groups.forEach { group ->
+                groupsAdapter.add(group)
+            }
+            groupsAdapter.notifyDataSetChanged()
         }
     }
 
@@ -97,6 +124,21 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
             groupId = item.groupId
         )
         viewModel.updateStudent(newStudent)
-        adapter.notifyItemChanged(adapter.currentList.indexOf(item))
+        studentAdapter.notifyItemChanged(studentAdapter.currentList.indexOf(item))
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        val item = parent?.selectedItem as Group
+
+        viewModel.currentGroup = item.id
+
+        viewModel.studentsInCurrentGroup.removeObservers(this)
+        viewModel.studentsInCurrentGroup.observe(viewLifecycleOwner) {
+            studentAdapter.submitList(it)
+        }
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        Log.d("TAG","onNothingSelected triggered")
     }
 }

@@ -14,4 +14,7 @@
     <string name="error_mandatory_field">Обязательное поле</string>
     <string name="cancel">Отменить</string>
     <string name="message_template">Сегодня, %1$s, отсутствуют по болезни %2$d%3$s, по другим причинам %4$d%5$s.</string>
+    <string name="last_group_delete_error">Нельзя удалить единственную группу</string>
+    <string name="add_group">Новая группа</string>
+    <string name="manage_groups">Группы</string>
 </resources>

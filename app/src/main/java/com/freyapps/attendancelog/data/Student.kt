@@ -11,10 +11,4 @@ data class Student(
     @ColumnInfo(name = "last_name") val lastName: String,
     @ColumnInfo(name = "status") val status: Int = 1,
     @ColumnInfo(name = "group_id", defaultValue = "1") val groupId: Int = 1
-) {
-    enum class Status(val value: Int) {
-        PRESENT(1),
-        ILL(2),
-        ABSCENT(3)
-    }
-}
+)
