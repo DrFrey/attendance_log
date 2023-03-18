@@ -7,6 +7,7 @@ import com.freyapps.attendancelog.data.Group
 import com.freyapps.attendancelog.data.GroupRepository
 import com.freyapps.attendancelog.data.Student
 import com.freyapps.attendancelog.data.StudentRepository
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -20,16 +21,14 @@ class SharedViewModel(
 
     var currentGroup = 1
 
-    val studentsInCurrentGroup: LiveData<List<Student>>
-        get() {
-            Log.d("TAG", "studentsInCurrentGroup get triggered")
-            return studentRepository.getAllStudentsByGroup(currentGroup)
-        }
+    fun studentsInCurrentGroup(): Flow<List<Student>> =
+        studentRepository.getAllStudentsByGroup(currentGroup)
 
-    val allSick: LiveData<List<Student>> = studentRepository.getAllSickByGroup(currentGroup)
-    val allAbsent: LiveData<List<Student>> = studentRepository.getAllAbsentByGroup(currentGroup)
-
-    val allGroups: LiveData<List<Group>> = groupRepository.getAllGroups()
+    fun allSick(): Flow<List<Student>> =
+        studentRepository.getAllSickByGroup(currentGroup)
+    fun allAbsent(): Flow<List<Student>> =
+        studentRepository.getAllAbsentByGroup(currentGroup)
+    fun allGroups(): Flow<List<Group>> = groupRepository.getAllGroups()
 
     @SuppressLint("NewApi")
     val today: String = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))

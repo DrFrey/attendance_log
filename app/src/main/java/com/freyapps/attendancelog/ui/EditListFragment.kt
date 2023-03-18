@@ -2,8 +2,12 @@ package com.freyapps.attendancelog.ui
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.freyapps.attendancelog.AttendanceLogApp
@@ -12,6 +16,7 @@ import com.freyapps.attendancelog.data.Student
 import com.freyapps.attendancelog.databinding.AddStudentBottomSheetDialogBinding
 import com.freyapps.attendancelog.databinding.FragmentEditListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 
 class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
 
@@ -25,26 +30,28 @@ class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
     private lateinit var editListAdapter: EditAdapter
     private lateinit var binding: FragmentEditListBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.menu_editList).isVisible = false
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentEditListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpViews()
         subscribeToViewModel()
+        (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(R.id.menu_editList).isVisible = false
+            }
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
 
-        return binding.root
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun setUpViews() {
@@ -64,8 +71,10 @@ class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
     }
 
     private fun subscribeToViewModel() {
-        viewModel.studentsInCurrentGroup.observe(viewLifecycleOwner) {
-            editListAdapter.submitList(it)
+        lifecycle.coroutineScope.launch {
+            viewModel.studentsInCurrentGroup().collect {
+                editListAdapter.submitList(it)
+            }
         }
     }
     private fun onAddClick() {

@@ -1,7 +1,7 @@
 package com.freyapps.attendancelog.data
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GroupDao {
@@ -15,5 +15,5 @@ interface GroupDao {
     suspend fun deleteGroup(group: Group)
 
     @Query("SELECT * FROM groups ORDER BY name")
-    fun getAllGroups(): LiveData<List<Group>>
+    fun getAllGroups(): Flow<List<Group>>
 }

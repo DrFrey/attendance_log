@@ -2,7 +2,6 @@ package com.freyapps.attendancelog.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +9,17 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.freyapps.attendancelog.AttendanceLogApp
 import com.freyapps.attendancelog.R
 import com.freyapps.attendancelog.data.Group
 import com.freyapps.attendancelog.data.Student
 import com.freyapps.attendancelog.databinding.FragmentListBinding
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
-class ListFragment : Fragment(), StudentAdapter.OnItemClickListener, AdapterView.OnItemSelectedListener {
+class ListFragment : Fragment(), StudentAdapter.OnItemClickListener,
+    AdapterView.OnItemSelectedListener {
 
     private val viewModel: SharedViewModel by activityViewModels {
         SharedViewModel.SharedViewModelFactory(
@@ -32,17 +35,23 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener, AdapterView
     private var absentStudents: List<Student> = listOf()
     private var groups: List<Group> = listOf()
 
+    private var jobCollectAllStudentsByGroup: Job? = null
+    private var jobCollectSickStudentsByGroup: Job? = null
+    private var jobCollectAbsentStudentsByGroup: Job? = null
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpViews()
         subscribeToViewModel()
-
-        return binding.root
     }
 
     private fun setUpViews() {
@@ -62,7 +71,7 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener, AdapterView
             groupSpinner.onItemSelectedListener = this@ListFragment
 
             btnSend.setOnClickListener {
-                val sick = sickStudents.joinToString(prefix = " (", postfix = ")")  {
+                val sick = sickStudents.joinToString(prefix = " (", postfix = ")") {
                     it.firstName + " " + it.lastName
                 }
 
@@ -96,23 +105,17 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener, AdapterView
     }
 
     private fun subscribeToViewModel() {
-        viewModel.studentsInCurrentGroup.observe(viewLifecycleOwner) {
-            studentAdapter.submitList(it)
-        }
-        viewModel.allSick.observe(viewLifecycleOwner) {
-            sickStudents = it
-        }
-        viewModel.allAbsent.observe(viewLifecycleOwner) {
-            absentStudents = it
-        }
-        viewModel.allGroups.observe(viewLifecycleOwner) {
-            groups = it
-            groupsAdapter.clear()
-            groups.forEach { group ->
-                groupsAdapter.add(group)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.allGroups().collect {
+                groups = it
+                groupsAdapter.clear()
+                groups.forEach { group ->
+                    groupsAdapter.add(group)
+                }
+                groupsAdapter.notifyDataSetChanged()
             }
-            groupsAdapter.notifyDataSetChanged()
         }
+
     }
 
     override fun onItemClick(item: Student, newStatus: Int) {
@@ -132,13 +135,26 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener, AdapterView
 
         viewModel.currentGroup = item.id
 
-        viewModel.studentsInCurrentGroup.removeObservers(this)
-        viewModel.studentsInCurrentGroup.observe(viewLifecycleOwner) {
-            studentAdapter.submitList(it)
+        jobCollectAllStudentsByGroup?.cancel()
+        jobCollectSickStudentsByGroup?.cancel()
+        jobCollectAbsentStudentsByGroup?.cancel()
+
+        jobCollectAllStudentsByGroup = viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.studentsInCurrentGroup().collect {
+                studentAdapter.submitList(it)
+            }
+        }
+        jobCollectSickStudentsByGroup = viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.allSick().collect {
+                sickStudents = it
+            }
+        }
+        jobCollectAbsentStudentsByGroup = viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.allAbsent().collect {
+                absentStudents = it
+            }
         }
     }
 
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        Log.d("TAG","onNothingSelected triggered")
-    }
+    override fun onNothingSelected(parent: AdapterView<*>?) {}
 }

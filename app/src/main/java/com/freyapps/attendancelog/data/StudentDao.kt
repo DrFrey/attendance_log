@@ -1,7 +1,7 @@
 package com.freyapps.attendancelog.data
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StudentDao {
@@ -21,14 +21,14 @@ interface StudentDao {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM students ORDER BY last_name ASC")
-    fun getAllStudents(): LiveData<List<Student>>
+    fun getAllStudents(): Flow<List<Student>>
 
     @Query("SELECT * FROM students WHERE status = 2 AND group_id = :groupId ORDER BY last_name ASC")
-    fun getAllSickByGroup(groupId: Int): LiveData<List<Student>>
+    fun getAllSickByGroup(groupId: Int): Flow<List<Student>>
 
     @Query("SELECT * FROM students WHERE status = 3 AND group_id = :groupId ORDER BY last_name ASC")
-    fun getAllAbsentByGroup(groupId: Int): LiveData<List<Student>>
+    fun getAllAbsentByGroup(groupId: Int): Flow<List<Student>>
 
     @Query("SELECT * FROM students WHERE group_id = :groupId ORDER BY last_name ASC")
-    fun getAllStudentsByGroup(groupId: Int): LiveData<List<Student>>
+    fun getAllStudentsByGroup(groupId: Int): Flow<List<Student>>
 }
