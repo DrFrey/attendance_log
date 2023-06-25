@@ -2,24 +2,25 @@ package com.freyapps.attendancelog.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.util.Log
+import android.view.*
+import android.view.Menu.NONE
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.findNavController
 import com.freyapps.attendancelog.AttendanceLogApp
 import com.freyapps.attendancelog.R
 import com.freyapps.attendancelog.data.Group
 import com.freyapps.attendancelog.data.Student
+import com.freyapps.attendancelog.databinding.AddGroupBottomSheetDialogBinding
+import com.freyapps.attendancelog.databinding.AddStudentBottomSheetDialogBinding
 import com.freyapps.attendancelog.databinding.FragmentListBinding
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class ListFragment : Fragment(), StudentAdapter.OnItemClickListener,
-    AdapterView.OnItemSelectedListener {
+class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
 
     private val viewModel: SharedViewModel by activityViewModels {
         SharedViewModel.SharedViewModelFactory(
@@ -29,16 +30,10 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener,
     }
     private lateinit var binding: FragmentListBinding
     private lateinit var studentAdapter: StudentAdapter
-    private lateinit var groupsAdapter: ArrayAdapter<Group>
 
+    private var groupsList: List<Group> = listOf()
     private var sickStudents: List<Student> = listOf()
     private var absentStudents: List<Student> = listOf()
-    private var groups: List<Group> = listOf()
-
-    private var jobCollectAllStudentsByGroup: Job? = null
-    private var jobCollectSickStudentsByGroup: Job? = null
-    private var jobCollectAbsentStudentsByGroup: Job? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,6 +47,50 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setUpViews()
         subscribeToViewModel()
+        val menuHost: MenuHost = requireActivity()
+
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onPrepareMenu(menu: Menu) {
+                menu.clear()
+                menu.add(NONE, R.string.edit, NONE, R.string.edit)
+                menu.findItem(R.string.edit).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                menu.add(NONE, R.string.add_group, NONE, R.string.add_group)
+                menu.add(NONE, R.string.delete_group, NONE, R.string.delete_group)
+                for (group in groupsList) {
+                    Log.d("--->", "adding group : ${group.name}")
+                    menu.add(NONE, group.id, NONE, group.name)
+                }
+            }
+
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.string.edit -> {
+                        requireActivity().findNavController(R.id.nav_host_fragment).navigate(R.id.action_listFragment_to_editListFragment)
+                        true
+                    }
+                    R.string.add_group -> {
+                        Log.d("--->", "add group clicked")
+                        onAddClick()
+                        true
+                    }
+                    R.string.delete_group -> {
+                        Log.d("--->", "delete group clicked")
+                        true
+                    }
+                    R.string.manage_groups -> {
+                        Log.d("--->", "manage group clicked")
+                        true
+                    }
+                    else -> {
+                        Log.d("--->", "clicked group with id ${menuItem.itemId}")
+                        viewModel.setCurrentGroup(menuItem.itemId)
+                        true
+                    }
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun setUpViews() {
@@ -61,14 +100,6 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener,
             studentsList.adapter = studentAdapter
 
             tvDate.text = viewModel.today
-
-            groupsAdapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_spinner_item
-            )
-            groupsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            groupSpinner.adapter = groupsAdapter
-            groupSpinner.onItemSelectedListener = this@ListFragment
 
             btnSend.setOnClickListener {
                 val sick = sickStudents.joinToString(prefix = " (", postfix = ")") {
@@ -96,26 +127,22 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener,
                 val shareIntent = Intent.createChooser(sendIntent, null)
                 startActivity(shareIntent)
             }
-
-            btnGroupEdit.setOnClickListener {
-                val editGroupsDialog = EditGroupsDialog(viewModel)
-                editGroupsDialog.show(childFragmentManager, "editGroups")
-            }
         }
     }
 
     private fun subscribeToViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.allGroups().collect {
-                groups = it
-                groupsAdapter.clear()
-                groups.forEach { group ->
-                    groupsAdapter.add(group)
-                }
-                groupsAdapter.notifyDataSetChanged()
-            }
+        viewModel.allGroups.observe(viewLifecycleOwner) {
+            groupsList = it
         }
-
+        viewModel.studentsInCurrentGroup.observe(viewLifecycleOwner) {
+            studentAdapter.submitList(it)
+        }
+        viewModel.allSick.observe(viewLifecycleOwner) {
+            sickStudents = it
+        }
+        viewModel.allAbsent.observe(viewLifecycleOwner) {
+            absentStudents = it
+        }
     }
 
     override fun onItemClick(item: Student, newStatus: Int) {
@@ -130,31 +157,34 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener,
         studentAdapter.notifyItemChanged(studentAdapter.currentList.indexOf(item))
     }
 
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        val item = parent?.selectedItem as Group
+    private fun onAddClick() {
+        val bottomSheetDialog = BottomSheetDialog(requireContext(), R.style.BottomSheetDialogTheme)
+        val dialogBinding =
+            AddGroupBottomSheetDialogBinding.inflate(LayoutInflater.from(requireContext()))
+        bottomSheetDialog.setContentView(dialogBinding.root)
 
-        viewModel.currentGroup = item.id
+        with(dialogBinding) {
+            btnSave.setOnClickListener {
+                when {
+                    etName.text.isNullOrEmpty() -> {
+                        etName.error = getString(R.string.error_mandatory_field)
+                    }
+                    else -> {
+                        val newGroup = Group(
+                            name = etName.text.toString()
+                        )
+                        viewModel.addGroup(newGroup)
+                        viewModel.setCurrentGroup(newGroup.id)
+                        bottomSheetDialog.dismiss()
+                    }
+                }
+            }
 
-        jobCollectAllStudentsByGroup?.cancel()
-        jobCollectSickStudentsByGroup?.cancel()
-        jobCollectAbsentStudentsByGroup?.cancel()
-
-        jobCollectAllStudentsByGroup = viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studentsInCurrentGroup().collect {
-                studentAdapter.submitList(it)
+            btnCancel.setOnClickListener {
+                bottomSheetDialog.dismiss()
             }
         }
-        jobCollectSickStudentsByGroup = viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.allSick().collect {
-                sickStudents = it
-            }
-        }
-        jobCollectAbsentStudentsByGroup = viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.allAbsent().collect {
-                absentStudents = it
-            }
-        }
+
+        bottomSheetDialog.show()
     }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {}
 }

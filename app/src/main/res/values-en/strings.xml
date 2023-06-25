@@ -18,4 +18,6 @@
     <string name="last_group_delete_error">You can\\\'t delete group if it\\\'s the only one left</string>
     <string name="add_group">New group</string>
     <string name="manage_groups">Groups</string>
+    <string name="delete_group">Delete group</string>
+    <string name="group_name">Name</string>
 </resources>

@@ -7,7 +7,6 @@ import com.freyapps.attendancelog.data.Group
 import com.freyapps.attendancelog.data.GroupRepository
 import com.freyapps.attendancelog.data.Student
 import com.freyapps.attendancelog.data.StudentRepository
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -19,22 +18,28 @@ class SharedViewModel(
 ) :
     ViewModel() {
 
-    var currentGroup = 1
+    val allGroups: LiveData<List<Group>> = groupRepository.getAllGroups()
 
-    fun studentsInCurrentGroup(): Flow<List<Student>> =
-        studentRepository.getAllStudentsByGroup(currentGroup)
+    val currentGroup = MutableLiveData<Int>()
 
-    fun allSick(): Flow<List<Student>> =
-        studentRepository.getAllSickByGroup(currentGroup)
-    fun allAbsent(): Flow<List<Student>> =
-        studentRepository.getAllAbsentByGroup(currentGroup)
-    fun allGroups(): Flow<List<Group>> = groupRepository.getAllGroups()
+    val studentsInCurrentGroup: LiveData<List<Student>> = currentGroup.switchMap {
+        studentRepository.getAllStudentsByGroup(it)
+    }
+
+    val allSick: LiveData<List<Student>> = currentGroup.switchMap {
+        studentRepository.getAllSickByGroup(it)
+    }
+
+    val allAbsent: LiveData<List<Student>> = currentGroup.switchMap {
+        studentRepository.getAllAbsentByGroup(it)
+    }
 
     @SuppressLint("NewApi")
     val today: String = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
 
     init {
         Log.d("TAG", "viewmodel init triggered")
+        setCurrentGroup(allGroups.value?.first()?.id ?: 1)
     }
 
     fun addStudent(student: Student) = viewModelScope.launch {
@@ -59,6 +64,10 @@ class SharedViewModel(
 
     fun deleteGroup(group: Group) = viewModelScope.launch {
         groupRepository.deleteGroup(group)
+    }
+
+    fun setCurrentGroup(id: Int) {
+        currentGroup.postValue(id)
     }
 
     class SharedViewModelFactory(
