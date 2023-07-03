@@ -11,12 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.freyapps.attendancelog.AttendanceLogApp
 import com.freyapps.attendancelog.R
 import com.freyapps.attendancelog.data.Group
 import com.freyapps.attendancelog.data.Student
 import com.freyapps.attendancelog.databinding.AddGroupBottomSheetDialogBinding
-import com.freyapps.attendancelog.databinding.AddStudentBottomSheetDialogBinding
 import com.freyapps.attendancelog.databinding.FragmentListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -71,21 +71,19 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
                         true
                     }
                     R.string.add_group -> {
-                        Log.d("--->", "add group clicked")
                         onAddClick()
                         true
                     }
                     R.string.delete_group -> {
                         Log.d("--->", "delete group clicked")
-                        true
-                    }
-                    R.string.manage_groups -> {
-                        Log.d("--->", "manage group clicked")
+                        onDeleteClicked()
                         true
                     }
                     else -> {
                         Log.d("--->", "clicked group with id ${menuItem.itemId}")
                         viewModel.setCurrentGroup(menuItem.itemId)
+                        Log.d("--->", "current group is ${viewModel.currentGroup.value}")
+
                         true
                     }
                 }
@@ -174,7 +172,6 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
                             name = etName.text.toString()
                         )
                         viewModel.addGroup(newGroup)
-                        viewModel.setCurrentGroup(newGroup.id)
                         bottomSheetDialog.dismiss()
                     }
                 }
@@ -184,7 +181,23 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
                 bottomSheetDialog.dismiss()
             }
         }
-
         bottomSheetDialog.show()
+    }
+
+    private fun onDeleteClicked() {
+        SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE)
+            .setTitleText(getString(R.string.are_you_sure))
+            .setContentText(getString(R.string.question_delete_group))
+            .setConfirmText(getString(R.string.yes))
+            .setConfirmClickListener { sDialog ->
+                viewModel.deleteCurrentGroup()
+                sDialog.dismissWithAnimation()
+            }
+            .showCancelButton(true)
+            .setCancelText(getString(R.string.no))
+            .setCancelClickListener { sDialog ->
+                sDialog.cancel()
+            }
+            .show()
     }
 }

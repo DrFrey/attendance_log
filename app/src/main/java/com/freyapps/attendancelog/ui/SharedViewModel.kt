@@ -15,8 +15,7 @@ import java.time.format.FormatStyle
 class SharedViewModel(
      private val studentRepository: StudentRepository,
      private val groupRepository: GroupRepository
-) :
-    ViewModel() {
+) : ViewModel() {
 
     val allGroups: LiveData<List<Group>> = groupRepository.getAllGroups()
 
@@ -33,6 +32,10 @@ class SharedViewModel(
     val allAbsent: LiveData<List<Student>> = currentGroup.switchMap {
         studentRepository.getAllAbsentByGroup(it)
     }
+
+    private val _error = MutableLiveData<Error>()
+    val error: LiveData<Error>
+        get() = _error
 
     @SuppressLint("NewApi")
     val today: String = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
@@ -56,18 +59,31 @@ class SharedViewModel(
 
     fun addGroup(group: Group) = viewModelScope.launch {
         groupRepository.addGroup(group)
+        setCurrentGroup(groupRepository.getGroupByName(group.name).id)
+        Log.d("--->", "in addGroup: current group is ${currentGroup.value}")
     }
 
     fun updateGroup(group: Group) = viewModelScope.launch {
         groupRepository.updateGroup(group)
     }
 
-    fun deleteGroup(group: Group) = viewModelScope.launch {
-        groupRepository.deleteGroup(group)
+    fun deleteCurrentGroup() = currentGroup.value?.let { deleteGroupById(it) }
+
+    private fun deleteGroupById(id: Int) = viewModelScope.launch {
+        allGroups.value?.let {
+            if (it.size > 1) {
+                studentRepository.deleteStudentsByGroup(id)
+                groupRepository.deleteGroupById(id)
+                setCurrentGroup(it.first().id)
+                Log.d("--->", "in deleteGroupById: current group is ${currentGroup.value}")
+            } else {
+                _error.postValue(Error.LastGroupError)
+            }
+        }
     }
 
     fun setCurrentGroup(id: Int) {
-        currentGroup.postValue(id)
+        currentGroup.value = id
     }
 
     class SharedViewModelFactory(

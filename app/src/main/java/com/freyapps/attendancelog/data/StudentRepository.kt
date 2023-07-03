@@ -16,4 +16,6 @@ class StudentRepository(
 
     suspend fun addStudent(student: Student) = studentDao.addStudent(student)
 
+    suspend fun deleteStudentsByGroup(groupId: Int) = studentDao.deleteStudentsByGroup(groupId)
+
 }

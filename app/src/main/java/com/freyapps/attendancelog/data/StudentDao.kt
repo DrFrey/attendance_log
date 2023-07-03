@@ -20,6 +20,9 @@ interface StudentDao {
     @Query("DELETE FROM students")
     suspend fun deleteAll()
 
+    @Query("DELETE FROM students WHERE group_id = :groupId")
+    suspend fun deleteStudentsByGroup(groupId: Int)
+
     @Query("SELECT * FROM students ORDER BY last_name ASC")
     fun getAllStudents(): LiveData<List<Student>>
 

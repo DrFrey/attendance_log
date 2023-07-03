@@ -14,6 +14,12 @@ interface GroupDao {
     @Delete
     suspend fun deleteGroup(group: Group)
 
+    @Query("DELETE FROM groups WHERE id = :id")
+    suspend fun deleteGroupById(id: Int)
+
     @Query("SELECT * FROM groups ORDER BY name")
     fun getAllGroups(): LiveData<List<Group>>
+
+    @Query("SELECT * FROM groups WHERE name = :name")
+    suspend fun getGroupByName(name: String): Group
 }

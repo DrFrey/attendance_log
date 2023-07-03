@@ -8,4 +8,6 @@ class GroupRepository(
     suspend fun addGroup(group: Group) = groupDao.addGroup(group)
     suspend fun updateGroup(group: Group) = groupDao.updateGroup(group)
     suspend fun deleteGroup(group: Group) = groupDao.deleteGroup(group)
+    suspend fun deleteGroupById(id: Int) = groupDao.deleteGroupById(id)
+    suspend fun getGroupByName(name: String) = groupDao.getGroupByName(name)
 }
