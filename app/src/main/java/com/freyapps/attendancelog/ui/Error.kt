@@ -1,6 +1,6 @@
 package com.freyapps.attendancelog.ui
 
-sealed class Error {
-    object LastGroupError : Error()
-    data class UnknownError(val description: String) : Error()
+sealed class Error(message: String): Exception(message) {
+    object LastGroupError : Error("Can't delete last group")
+    data class UnknownError(val description: String) : Error(description)
 }

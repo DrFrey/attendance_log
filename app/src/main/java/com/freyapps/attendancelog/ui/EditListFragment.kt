@@ -81,7 +81,7 @@ class EditListFragment : Fragment(), EditAdapter.OnDeleteClickListener {
                             Student(
                                 firstName = etFirstName.text.toString(),
                                 lastName = etLastName.text.toString(),
-                                groupId = viewModel.currentGroup.value ?: 1
+                                groupId = viewModel.currentGroup.value?.id ?: 1
                             )
                         )
                         editListAdapter.notifyDataSetChanged()
