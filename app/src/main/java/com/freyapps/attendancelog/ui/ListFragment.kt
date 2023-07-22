@@ -60,7 +60,7 @@ class ListFragment : Fragment(), StudentAdapter.OnItemClickListener {
                 menu.clear()
 
                 menu.add(NONE, R.string.edit, NONE, R.string.edit)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
 
                 groupsSub = menu.addSubMenu(NONE, R.string.groups_submenu, NONE, R.string.groups_submenu)
                 groupsSub?.item?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
