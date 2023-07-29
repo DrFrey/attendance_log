@@ -6,12 +6,7 @@ plugins {
 
 android {
     signingConfigs {
-        release {
-            storeFile file('/users/antonvorovatov/documents/projects/keystore.jks')
-            storePassword ''
-            keyAlias 'key0'
-            keyPassword ''
-        }
+    // removed
     }
     compileSdkVersion 33
     buildToolsVersion "30.0.3"
