@@ -21,7 +21,6 @@ class EditAdapter(val listener: OnDeleteClickListener) :
                 }
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -40,7 +39,6 @@ class EditAdapter(val listener: OnDeleteClickListener) :
             override fun areContentsTheSame(oldItem: Student, newItem: Student): Boolean {
                 return oldItem.id == newItem.id
             }
-
         }
     }
 
